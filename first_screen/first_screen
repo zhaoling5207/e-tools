@@ -1,0 +1,66 @@
+#!/usr/bin/ruby
+
+require "csv"
+
+def getrand(len = 8)
+  chars = ('a'..'z').to_a + ('0'..'9').to_a
+  newpass = ''
+  1.upto(len) { |_i| newpass << chars[rand(chars.size - 1)] }
+  newpass
+end
+
+cmds=[]
+cmds.push("http://obzmaftbl.bkt.clouddn.com/1m.mp4?avvod/m3u8/vb/256k/s/360x640/pipeline/vod-test")
+cmds.push("http://obzmaftbl.bkt.clouddn.com/5m.mp4?avvod/m3u8/vb/256k/s/360x640/pipeline/vod-test")
+cmds.push("http://obzmaftbl.bkt.clouddn.com/10m.mp4?avvod/m3u8/vb/256k/s/360x640/pipeline/vod-test")
+cmds.push("http://obzmaftbl.bkt.clouddn.com/20m.mp4?avvod/m3u8/vb/256k/s/360x640/pipeline/vod-test")
+cmds.push("http://obzmaftbl.bkt.clouddn.com/30m.mp4?avvod/m3u8/vb/256k/s/360x640/pipeline/vod-test")
+cmds.push("http://obzmaftbl.bkt.clouddn.com/50m.mp4?avvod/m3u8/vb/256k/s/360x640/pipeline/vod-test")
+cmds.push("http://obzmaftbl.bkt.clouddn.com/100m.mp4?avvod/m3u8/vb/256k/s/360x640/pipeline/vod-test")
+cmds.push("http://obzmaftbl.bkt.clouddn.com/200m.mp4?avvod/m3u8/vb/256k/s/360x640/pipeline/vod-test")
+# cmds.push("http://obzmaftbl.bkt.clouddn.com/500m.mp4?avvod/m3u8/vb/256k/s/360x640/pipeline/vod-test/"+getrand(8))
+times=Array.new(10, Array.new(10, 0))
+# 循环次数
+n=5 
+oneT=[]
+filename="first_screen_"+Time.new.strftime("%Y-%m-%d %H:%M:%S")+".csv"
+if  File.exist?(filename) 
+	File.delete(filename)
+end
+CSV.open(filename,"wb") do |csv|
+	 csv << ["1m","5m","10m","20m","30m","50m","100m","200m"]
+end
+(0..n-1).each do |i|
+	cmds.each do |cmd|
+		cmd+="/"+getrand(8)
+		startT=Time.now
+		`time first_screen.sh #{cmd}`
+		endT=Time.now
+		oneT.push(endT-startT)
+	end
+	times[i]=oneT
+	CSV.open(filename,"a") do |csv|
+	  csv << oneT
+	end
+	oneT=[]
+end
+p times
+
+# 计算平均值
+times=CSV.parse(File.read(filename)) 
+averageT=[]
+tmp=0
+tmpResult=0
+(0..cmds.length-1).each do |j|
+	(1..n).each do |i|
+		tmpResult=tmpResult+times[i][j].to_f
+		if i==n
+			averageT[j]=(tmpResult/n*100000).round.to_f/100000
+			tmpResult=0
+		end
+	end
+end
+# p averageT
+CSV.open(filename,"a") do |csv|
+	  csv << averageT
+end

@@ -1,0 +1,39 @@
+#!/bin/bash
+# $1:makefile中具体的key
+# $2:TEST_ENV
+# $3:TEST_ZONE
+# $4:COMPARE_LEVEL
+
+
+if [ ! $1 ];then
+	echo "test command can't be null"
+	exit 1
+fi
+
+if [ ! $2 ];then
+	echo "TEST_ENV can't be null"
+	exit 1
+fi
+
+if [ ! $3 ];then
+	echo "TEST_ZONE can't be null"
+	exit 1
+fi
+
+cd test
+source env.sh
+if [ $2 != "_" ];then
+	export TEST_ENV=$2
+fi
+
+if [ $3 != "_" ];then
+	export TEST_ZONE=$3
+fi
+
+if [[ $4 != "_" && !$4 ]];then
+	export COMPARE_LEVEL=$4
+fi
+
+
+make $1
+

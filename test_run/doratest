@@ -20,6 +20,11 @@ if [ ! $3 ];then
 	exit 1
 fi
 
+if [ ! -d "test" ]; then
+	echo "please go to test dir"
+	exit 1
+fi
+
 cd test
 source env.sh
 if [ $2 != "_" ];then
